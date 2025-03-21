@@ -86,3 +86,68 @@ def index(request):
     {% endfor %}
 {% endblock %}
 ```
+
+## Create 구현
+- 1. articles앱 내에 (`forms.py`)
+```python
+from django.forms import ModelForm
+from .models import Article
+
+class ArticleForm(ModelForm):
+   class Meta(): 
+        model = Article
+        fields = '__all__' # 모든 필드를 불러옴.
+```
+- 2. (`urls.py`)
+```python
+
+urlpatterns = [
+    ...
+    # Create
+    path('create/', views.create, name = 'create'), 
+    # 차이점 : 빈종이 보여주기 / 저장 한번에 처리
+]
+```
+- 3. (`views.py`)
+```python
+def create(request):
+    # new/ = 빈 종이를 보여주는 기능
+    # create/ = 사용자가 입력한 데이터 저장
+#===============================================
+    # GET create/ = 빈 종이를 보여주는 기능
+    # POST create/ = 사용자가 입력한 데이터 저장
+
+    if request.method == 'POST':    # 2) create 이후
+        form = ArticleForm(request.POST)  
+        # title은 title, content는 content에 넣어서 form에서 알아서 넣어줌.
+        
+        if form.is_valid(): #데이터가 유효 -> 저장
+            form.save()
+            return redirect('articles:index') 
+
+        else: # 데이터가 유효 x 경우 : 
+            pass
+
+    else:                            # 1) new 먼저 
+        form = ArticleForm()
+        context = {
+            'form':form,
+        }
+        return render(request, 'create.html', context)
+```
+
+- 4. (`create.html`)
+```python
+{% extends 'base.html' %} # 공통 html 불러오기
+
+{%  block body %}
+    <form action="" method="POST"> # action에 비워두면 내 위치로 이동
+        {% csrf_token %} 
+        {{form}}
+        <input type="submit">
+    </form>
+{% endblock %}
+```
+- modelform 결과 : required_id (꼭 넣어야 하는 정보) 생성
+    - vaildation check : 사용자
+
