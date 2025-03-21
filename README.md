@@ -109,6 +109,7 @@ urlpatterns = [
 ]
 ```
 - 3. (`views.py`)
+### 방법 1. 
 ```python
 def create(request):
     # new/ = 빈 종이를 보여주는 기능
@@ -117,23 +118,69 @@ def create(request):
     # GET create/ = 빈 종이를 보여주는 기능
     # POST create/ = 사용자가 입력한 데이터 저장
 
-    if request.method == 'POST':    # 2) create 이후
-        form = ArticleForm(request.POST)  
-        # title은 title, content는 content에 넣어서 form에서 알아서 넣어줌.
+    if request.method == 'POST':    # create 이후
+        form = ArticleForm(request.POST)  # title은 title, content는 content에 넣어서 form으로 묶어줌.
         
         if form.is_valid(): #데이터가 유효 -> 저장
             form.save()
-            return redirect('articles:index') 
+            return redirect('articles:index')
 
-        else: # 데이터가 유효 x 경우 : 
-            pass
+        else: #데이터가 유효 x 경우 -> 다시 쓰라고 요청
+            context = {
+                'form':form,
+            }
+            return render(request, 'create.html', context)
 
-    else:                            # 1) new 먼저 
+    else:                            # new 먼저 
         form = ArticleForm()
         context = {
             'form':form,
         }
         return render(request, 'create.html', context)
+```
+### 방법 2. 중복 제거 (최종)
+```python
+def index(request):
+    articles = Article.objects.all()
+
+    context = {
+        'articles':articles,
+    }
+    return render(request, 'index.html', context)
+
+def create(request):
+    # 모든 경우의 수 
+        # - GET : form을 만들어서 html 문서를 사용자에게 마련
+        # - POST : invalid data (데이터 검증 실패)
+        # - post : valid data (데이터 검증 성공)
+
+    # 5. POST 요청 (invalid data)
+    # 10. POST 요청 (valid data)
+    if request.method == 'POST':    
+        # 6. 사용자가 입력한 데이터(request.POST)를 담은 form 생성 (invalid)
+        # 11. 사용자가 입력한 데이터(request.POST)를 담은 form 생성 (valid)
+        form = ArticleForm(request.POST)
+        # 7. form 검증 실패
+        # 12. form 검증 성공
+        if form.is_valid(): #데이터가 유효 -> 저장
+            # 13. form 저장
+            form.save()
+            # 14. index로 redirect
+            return redirect('articles:index')
+
+    # 1. GET 요청 : 비어있는 form(new) 만든다.
+    else:                            
+        form = ArticleForm()
+
+    # 3. context dict에 비어있는 form을 담는다.
+    # 8. context dict에 검증에 실패한 form을 담는다.
+    context = {
+        'form':form,
+    }
+    
+    # 4. create.html을 랜더링
+    # 9. create.html을 랜더링
+    return render(request, 'create.html', context)
 ```
 
 - 4. (`create.html`)
@@ -148,6 +195,8 @@ def create(request):
     </form>
 {% endblock %}
 ```
+###  vaildation check : 사용자 사용 편의성 
 - modelform 결과 : required_id (꼭 넣어야 하는 정보) 생성
-    - vaildation check : 사용자
+    - 프론트 엔드 : required를 개발자모드에서 삭제하면 제출할 수는 있음.
+    - 파이썬 내부 : 
 
