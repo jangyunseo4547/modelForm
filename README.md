@@ -1,6 +1,6 @@
 ## 0,1 설정 동일
 
-## 모델 설정 (`models.py`)
+## modeling (`models.py`)
 ```python
 class Article(models.Model):
     title = models.CharField(max_length =100)
