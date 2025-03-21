@@ -25,3 +25,18 @@ admin.site.register(Article)
 ## 관리자 페이지 생성
 `python manage.py createsuperuser`
 `python manage.py runserver`
+
+##
+- `settings.py` 
+```python
+'DIRS': [BASE_DIR / 'templates'], # 밖에 있는 templates에 있는 파일도 탐지
+```
+- templates에 `base.html` 파일 생성
+```shell
+<body>
+    <h1>여기는 base입니다.</h1>
+    {% block body %}
+    {% endblock %}
+</body>
+```
+

@@ -55,7 +55,7 @@ ROOT_URLCONF = 'modelForm.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'], # 밖에 있는 templates에 있는 파일도 탐지
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
