@@ -40,3 +40,49 @@ admin.site.register(Article)
 </body>
 ```
 
+## Read 기능 구현
+- 0. modelForm
+```python
+from django.urls import path
+from . import views
+app_name = 'articles'
+
+urlpatterns = [
+    # Read
+    path('', views.index, name = 'index') # articles 생략
+]
+```
+
+- 1. articles 앱 내에 (`urls.py`)
+```python
+from django.urls import path
+from . import views
+app_name = 'articles'
+
+urlpatterns = [
+    # Read
+    path('', views.index, name = 'index') # articles 생략
+]
+```
+- 2. articles 앱 내에 (`views.py`)
+```python
+def index(request):
+    articles = Article.objects.all() # 전체 articles 찾기
+
+    context = {
+        'articles' : articles,
+    }
+    return render(request, 'index.html', context)
+```
+
+- 3. articles 앱 안에 templates - `index.html`파일 생성
+```
+{% extends 'base.html' %}
+
+{% block body %}
+    {% for article in articles %}
+        <h1>{{article.title}}</h1>
+        <p>{{article.content}}</p>
+    {% endfor %}
+{% endblock %}
+```
