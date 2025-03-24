@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+    <h3>{{article.title}}</h3>
+    <p>{{article.content}}</p>
+    <p>{{article.created_at}}</p>
+    <p>{{article.updated_at}}</p>
+
+    <a href="{% url 'articles:update' article.id %}">update</a>
+    <a href="{% url 'articles:delete' article.id %}">delete</a>
+
+    <hr>
+
+    <form action="{% url 'articles:comment_create' article.id %}" method='POST'>
+        {% csrf_token %}
+        {{form}}
+        <input type="submit">
+    </form>
+
+    <hr>
+    {% for comment in comments %}
+        <li>{{comment.content}}</li>
+        <a href="{% url 'articles:comment_delete' article.id comment.id %}">delete</a>
+    {% endfor %}
+{% endblock %}

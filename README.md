@@ -195,8 +195,43 @@ def create(request):
     </form>
 {% endblock %}
 ```
+
 ###  vaildation check : 사용자 사용 편의성 
 - modelform 결과 : required_id (꼭 넣어야 하는 정보) 생성
     - 프론트 엔드 : required를 개발자모드에서 삭제하면 제출할 수는 있음.
     - 파이썬 내부 : 
 
+# -----------------------------------------------------------
+
+## 댓글 modeling 
+- (`models.py`)
+```python
+class comment(models.Model):
+    content = models.TextField()
+    article = models.ForeignKey(Article, on_delete=models.CASCADE) 
+    # 외래 키 : 부모의 아이디값이 저장되는 공간 / 
+    # on_delete : 부모가 지워졌을때 / CASCADE :부모, 자식 모두 지워주는
+```
+## migration
+- 새로운 모델링 이후에는 반드시 마이그레이션 해주기
+`python manage.py makemigraions`
+`python manage.py migrate`
+
+## comment create 기능 구현
+- 댓글 폼 만들기 -> 댓글 제출
+
+## comment read 기능 구현
+- 댓글 제출 -> detail.html 페이지에 보이기
+
+## comment delete 기능 구현 
+- `detail.html` : a태그 - 댓글 삭제 링크
+- `urls.py` : 해당 게시글 찾기- 해당 게시글에 작성된 댓글 경로
+`path('<int:article_id>/comments/<int:id>/delete/', views.comment_delete, name = 'comment_delete'),`
+- `views.py` : 
+```python
+def comment_delete(request, article_id, id): # 게시글 아이디, 댓글 아이디 둘다 request
+    comment = Comment.objects.get(id=id) # 해당 댓글 찾기
+    comment.delete() # 해당 댓글 삭제
+    
+    return redirect('articles:detail', id=article_id) 
+```

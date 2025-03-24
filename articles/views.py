@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
-from .models import Article
-from .forms import ArticleForm
+from .models import Article, Comment
+from .forms import ArticleForm, CommentForm
 
 # Create your views here.
 
@@ -11,6 +11,19 @@ def index(request):
         'articles':articles,
     }
     return render(request, 'index.html', context)
+
+def detail(request, id):
+    article = Article.objects.get(id=id)
+    comments = article.comment_set.all()
+
+    form = CommentForm()
+
+    context = {
+        'article':article,
+        'form':form,
+        'comments':comments,
+    }
+    return render(request, 'detail.html', context)
 
 def create(request):
     # 모든 경우의 수 
@@ -45,3 +58,47 @@ def create(request):
     # 4. create.html을 랜더링
     # 9. create.html을 랜더링
     return render(request, 'create.html', context)
+
+def update(request, id):
+    article = Article.objects.get(id=id) # 업데이트할 게시글 아이디 찾기
+    if request.method == 'POST':
+        form = ArticleForm(request.POST, instance = article) # 메소드가 POST일때 POST를 요청함.
+        if form.is_valid(): # 데이터 유효하면 저장
+            form.save()
+            return redirect('articles:detail', id = id)
+
+    else:
+        form = ArticleForm(instance = article) # 메소드가 POST가 아닐경우 기존 게시글
+
+    context = {
+        'form':form,
+    }
+    return render(request, 'update.html', context)
+
+def delete(request, id):
+    article = Article.objects.get(id=id)
+    article.delete()
+
+    return redirect('articles:index')
+
+def comment_create(request, article_id):
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit = False) # 바로 데이터베이스에 저장되지 않음.
+        
+            article = Article.objects.get(id=article_id)
+            comment.article = article # 댓글이 해당 게시글과 연결되도록
+            comment.save() # 데이터를 실제 저장 
+
+            return redirect('articles:detail', id = article_id)
+
+    else:
+        return redirect('articles:index')
+
+def comment_delete(request, article_id, id):
+    comment = Comment.objects.get(id=id)
+    comment.delete()
+    
+    return redirect('articles:detail', id=article_id)
+    
